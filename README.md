@@ -1,4 +1,4 @@
-#**HoursAndCounting**
+# **HoursAndCounting**
 
 HoursAndCounting is a Discord bot project developed using JDA. It aims to be a flexible iCal interface for Discord users, with the ability to load their own iCal URLs.
 
