@@ -12,12 +12,12 @@ public class Parser {
     // opens the stream, and returns the whole file.
     public static String rawDataParser(String url) throws IOException {
         String buffer;
-        String rawData = "";
+        StringBuilder rawData = new StringBuilder();
         BufferedReader read = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
         while((buffer = read.readLine()) != null){
-            rawData += buffer;
+            rawData.append(buffer);
         }
-        return rawData;
+        return rawData.toString();
     }
 
     public static ArrayList<CalendarEvent> parseRawData(String rawData){

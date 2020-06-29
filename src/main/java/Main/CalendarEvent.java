@@ -10,4 +10,12 @@ public class CalendarEvent {
     String summary;
     String location;
     String description;
+
+    public String toString(){
+        return category +
+                "\nDe " + start.toString() +
+                " a " + end.toString() +
+                "\n" + summary +
+                "\nDans : " + location;
+    }
 }

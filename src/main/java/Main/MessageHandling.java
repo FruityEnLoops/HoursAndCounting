@@ -7,7 +7,7 @@ public class MessageHandling {
 
     // A prefix debugging tool. See what the methods return, and see why this or that parameter isn't what you wanted.
     public static String messageProcessing(MessageReceivedEvent event){
-        return "Argument count : " + getArgumentCount(event.getMessage().getContentRaw()) + "\nArgument list : " + getArgListAsString(getArgumentList(event.getMessage().getContentRaw()));
+        return getInputCommand(event) + "\nArgument count : " + getArgumentCount(event.getMessage().getContentRaw()) + "\nArgument list : " + getArgListAsString(getArgumentList(event.getMessage().getContentRaw()));
     }
 
     // Arg size. Useful for commands with fixed argument count, to counter badly formed commands
@@ -22,14 +22,14 @@ public class MessageHandling {
 
     // Just some formatting, for better readability.
     public static String getArgListAsString(String[] argList){
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
         if(argList.length > 1){
-            ret = argList[1];
+            ret = new StringBuilder(argList[1]);
             for(int i = 2; i < argList.length; i++){
-                ret += ", " + argList[i];
+                ret.append(", ").append(argList[i]);
             }
         }
-        return ret;
+        return ret.toString();
     }
 
     // Formatting entire input to be displayed without prefix
