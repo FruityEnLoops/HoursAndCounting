@@ -31,8 +31,11 @@ public class Main extends ListenerAdapter {
         builder.setToken(args[0]);
         builder.addEventListener(new Main());
         Main.jda = builder.buildAsync();
-        Main.jda.getPresence().setPresence(Game.playing("a"), false);
         System.out.println("[DEBUG] Connected.");
+        Main.jda.getPresence().setPresence(Game.playing("lire des calendriers"), false);
+
+        // Initialize saved iCals from serialized list
+        // TODO
     }
 
     @Override
