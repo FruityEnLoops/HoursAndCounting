@@ -1,45 +1,91 @@
 package Main;
 
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+
+import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 
 public class MessageHandling {
     private final static String argSeparator = " ";
 
-    // A prefix debugging tool. See what the methods return, and see why this or that parameter isn't what you wanted.
-    public static String messageProcessing(MessageReceivedEvent event){
-        return getInputCommand(event) + "\nArgument count : " + getArgumentCount(event.getMessage().getContentRaw()) + "\nArgument list : " + getArgListAsString(getArgumentList(event.getMessage().getContentRaw()));
-    }
-
-    // Arg size. Useful for commands with fixed argument count, to counter badly formed commands
-    public static int getArgumentCount(String message){
-        return message.split(argSeparator).length - 1;
+    public static String commandHandler(MessageReceivedEvent event){
+        String[] argsList = getArgumentList(event.getMessage().getContentRaw());
+        // Try to find the user's iCal group
+        List<Role> userRoles = event.getAuthor().getJDA().getRoles();
+        iCal userCalendar = null;
+        boolean groupFoundInMessage = false;
+        for(Role e : userRoles){
+            for(iCal c : Main.iCals){
+                if(e.getName().equals(c.identifier)){
+                    userCalendar = c;
+                }
+            }
+        }
+        // if a valid iCal was specified in the message, override the user's group found in their roles (if one was found)
+        if(argsList.length >= 2){
+            for(iCal c : Main.iCals){
+                if(c.identifier.equals(argsList[2])){
+                    userCalendar = c;
+                    groupFoundInMessage = true;
+                }
+            }
+        }
+        if(userCalendar == null){
+            return "Erreur : calendrier non spécifié / vous n'avez le rôle d'aucun calendrier";
+        }
+        // message is "!edt". Return all the events for the current day :
+        if(argsList.length == 1){
+            return userCalendar.getAllEventsOf(LocalDate.now());
+        }
+        if(argsList.length == 2){
+            switch(argsList[1]){
+                case "demain":
+                    return userCalendar.getAllEventsOf(LocalDate.now().plusDays(1));
+                case "lundi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)));
+                case "mardi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)));
+                case "mercredi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)));
+                case "jeudi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.THURSDAY)));
+                case "vendredi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY)));
+                case "samedi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)));
+                case "dimanche":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
+            }
+        } if(argsList.length == 3 && groupFoundInMessage){
+            switch(argsList[2]){
+                case "demain":
+                    return userCalendar.getAllEventsOf(LocalDate.now().plusDays(1));
+                case "lundi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)));
+                case "mardi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)));
+                case "mercredi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)));
+                case "jeudi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.THURSDAY)));
+                case "vendredi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY)));
+                case "samedi":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)));
+                case "dimanche":
+                    return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
+            }
+        }
+        return null;
     }
 
     // Gets each argument (an argument is separated by argSeparator, here a space)
     public static String[] getArgumentList(String message){
         return message.split(argSeparator);
-    }
-
-    // Just some formatting, for better readability.
-    public static String getArgListAsString(String[] argList){
-        StringBuilder ret = new StringBuilder();
-        if(argList.length > 1){
-            ret = new StringBuilder(argList[1]);
-            for(int i = 2; i < argList.length; i++){
-                ret.append(", ").append(argList[i]);
-            }
-        }
-        return ret.toString();
-    }
-
-    // Formatting entire input to be displayed without prefix
-    // kinda useless
-    public static String getInputCommand(MessageReceivedEvent event) {
-        if(event.getMessage().getContentRaw().equals("!edt") || event.getMessage().getContentRaw().equals("!edt ")){
-            return "No arguments were passed.";
-        } else {
-            return event.getMessage().getContentRaw().substring(Main.prefix.length() + 1);
-        }
     }
 
     public static void addAuthorized(MessageReceivedEvent e){
@@ -60,5 +106,35 @@ public class MessageHandling {
 
     public static void sendAdminList(MessageReceivedEvent event) {
         event.getChannel().sendMessage("Current authorized Discord UIDs are: " + Main.authorized.toString()).queue();
+    }
+
+    public static String addCalendar(MessageReceivedEvent event) {
+        String[] args = getArgumentList(event.getMessage().getContentRaw());
+        if(args.length != 3){
+            return "Erreur : merci de donner l'URL et le nom du calendrier";
+        } else {
+            try {
+                iCal calendar = new iCal(args[1], args[2]);
+                Main.iCals.add(calendar);
+                return "Calendrier " + calendar.identifier + " ajouté avec succès!";
+            } catch (IOException e) {
+                return "Erreur : URL de l'iCal invalide!";
+            }
+        }
+    }
+
+    public static String removeCalendar(MessageReceivedEvent event) {
+        String[] args = getArgumentList(event.getMessage().getContentRaw());
+        if(args.length != 2){
+            return "Erreur : merci de spécifier quel calendrier supprimer";
+        } else {
+            for(iCal c : Main.iCals){
+                if(c.identifier.equals(args[1])){
+                    Main.iCals.remove(c);
+                    return "Calendrier " + c.identifier + " supprimé.";
+                }
+            }
+            return "Erreur : aucun calendrier n'a été trouvé avec l'identifiant " + args[1] + ".";
+        }
     }
 }
