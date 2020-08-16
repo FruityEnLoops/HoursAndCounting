@@ -158,6 +158,6 @@ public class Main extends ListenerAdapter {
         System.out.println("[DEBUG] (" + LocalDate.now() + " " + LocalTime.now() + ") Finished updating calendars.\n" +
                 "Calendars parsed : " + Main.iCals.size() + "\n" +
                 "Calendar updates failed : " + failcount + "\n" +
-                "Update took : " + LocalTime.now().until(startTime, MINUTES));
+                "Update took : " + startTime.until(LocalTime.now(), MINUTES));
     }
 }
