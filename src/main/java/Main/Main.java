@@ -89,7 +89,7 @@ public class Main extends ListenerAdapter {
             event.getChannel().sendMessage(MessageHandling.addCalendar(event)).queue();
         }
 
-        if(event.getMessage().getContentRaw().startsWith("!edtrm")){
+        if(event.getMessage().getContentRaw().startsWith("!edtrm") && checkUserPerm(event, "iCal Editor")){
             event.getChannel().sendMessage(MessageHandling.removeCalendar(event)).queue();
         }
 
