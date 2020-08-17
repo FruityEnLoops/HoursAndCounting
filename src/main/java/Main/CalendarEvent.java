@@ -1,8 +1,9 @@
 package Main;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class CalendarEvent {
+public class CalendarEvent implements Serializable {
     private final String UNDEFINED_DEFAULT = "undefined";
 
     String category;
