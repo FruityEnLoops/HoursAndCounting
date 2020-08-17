@@ -69,6 +69,8 @@ public class Main extends ListenerAdapter {
                         " on " +
                         LocalDate.now() +
                         " " + LocalTime.now());
+                // save the current calendars before shutting down
+                Main.saveSerializedItemList();
                 System.exit(0);
             }
             if(event.getMessage().getContentRaw().contains("!admin add")){
