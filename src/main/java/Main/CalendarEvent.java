@@ -1,10 +1,13 @@
 package Main;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class CalendarEvent implements Serializable {
     private final String UNDEFINED_DEFAULT = "undefined";
+    private final LocalDateTime UNDEFINED_DEFAULT_DATE = LocalDateTime.of(LocalDate.of(0,1,1), LocalTime.of(0,0));
 
     String category;
     String uid;
@@ -17,8 +20,8 @@ public class CalendarEvent implements Serializable {
     public CalendarEvent() {
         this.category = UNDEFINED_DEFAULT;
         this.uid = UNDEFINED_DEFAULT;
-        this.start = null;
-        this.end = null;
+        this.start = UNDEFINED_DEFAULT_DATE;
+        this.end = UNDEFINED_DEFAULT_DATE;
         this.summary = UNDEFINED_DEFAULT;
         this.location = UNDEFINED_DEFAULT;
         this.description = UNDEFINED_DEFAULT;
