@@ -4,6 +4,7 @@ import Main.CalendarEvent;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.LocalDate;
@@ -16,8 +17,8 @@ import java.util.Scanner;
 public class Parser {
     private static final String SUMMARY = "SUMMARY:";
     private static final String UID = "UID:";
-    private static final String DTSTART = "DTSTART;";
-    private static final String DTEND = "DTEND;";
+    private static final String DTSTART = "DTSTART:";
+    private static final String DTEND = "DTEND:";
     private static final String LOCATION = "LOCATION:";
     private static final String DESCRIPTION = "DESCRIPTION:";
     private static final String CATEGORY = "CATEGORY:";
@@ -27,11 +28,13 @@ public class Parser {
 
     // opens the stream, and returns the whole file.
     public static String rawDataParser(String url) throws IOException {
-        String buffer;
         StringBuilder rawData = new StringBuilder();
-        BufferedReader read = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
-        while((buffer = read.readLine()) != null){
-            rawData.append(buffer);
+        String line;
+        try (InputStream in = new URL(url).openStream()) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            while ((line = reader.readLine()) != null) {
+                rawData.append(line).append(System.lineSeparator());
+            }
         }
         return rawData.toString();
     }
@@ -72,7 +75,7 @@ public class Parser {
 
     private static LocalDateTime parseDate(String line) {
         Scanner sc = new Scanner(line);
-        sc.useDelimiter("T");
+        sc.useDelimiter("T|Z");
         LocalDate date = LocalDate.parse(sc.next(), formatter);
         LocalTime time;
         if(sc.hasNext()){
@@ -91,7 +94,7 @@ public class Parser {
         // skip to the first VEVENT
         boolean done = false;
         while(!done && sc.hasNext()){
-            if(sc.nextLine().equals("BEGIN:VEVENT")){
+            if(sc.nextLine().contains("BEGIN:VEVENT")){
                 done = true;
             }
         }
@@ -99,7 +102,7 @@ public class Parser {
         while(sc.hasNext()){
             String line = sc.nextLine();
             sb.append(line);
-            if(line.equals("END:VEVENT")){
+            if(line.contains("END:VEVENT")){
                 res.add(sb.toString());
                 sb = new StringBuilder();
             }
