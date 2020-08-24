@@ -17,6 +17,7 @@ public class iCal implements Serializable {
         this.url = url;
         this.identifier = identifier;
         this.rawData = Parser.Parser.rawDataParser(url);
+        this.events = new ArrayList<CalendarEvent>();
     }
 
     // builds the events ArrayList, containing all the event of the iCal.
@@ -37,11 +38,20 @@ public class iCal implements Serializable {
     // Returns all events of the specified date
     public String getAllEventsOf(LocalDate date) {
         StringBuilder res = new StringBuilder();
-        for(CalendarEvent e : this.events){
-            if(e.start.toLocalDate().isEqual(date)){
+        for (CalendarEvent e : this.events) {
+            if (e.start.toLocalDate().isEqual(date)) {
                 res.append(e);
             }
         }
+        if(res.toString().isEmpty()){
+            return "Aucun évenement.";
+        }
         return res.toString();
+    }
+
+    public void debugPrintCalendarStats(){
+        System.out.println("Calendar identifier : " + identifier);
+        System.out.println("Calendar url : " + url);
+        System.out.println("Calendar event count : " + this.events.size());
     }
 }
