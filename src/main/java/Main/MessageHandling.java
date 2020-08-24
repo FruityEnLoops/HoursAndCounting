@@ -147,12 +147,12 @@ public class MessageHandling {
     public static String updateCalendar(MessageReceivedEvent event) {
         String[] args = getArgumentList(event.getMessage().getContentRaw());
         if(args.length != 2){
-            return "Erreur : merci de spécifier quel calendrier supprimer";
+            return "Erreur : merci de spécifier quel calendrier supprimer.";
         } else {
             for(iCal c : Main.iCals){
                 if(c.identifier.equals(args[1])){
                     c.update();
-                    return "Calendrier mis a jour";
+                    return "Calendrier " + c.identifier + " mis a jour avec succès.";
                 }
             }
             return "Erreur : aucun calendrier n'a été trouvé avec l'identifiant " + args[1] + ".";
