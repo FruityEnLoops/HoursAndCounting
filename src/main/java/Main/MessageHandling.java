@@ -113,6 +113,11 @@ public class MessageHandling {
         if(args.length != 3){
             return "Erreur : merci de donner l'URL et le nom du calendrier";
         } else {
+            for(iCal i : Main.iCals){
+                if(i.identifier.equals(args[1])){
+                    return "Erreur : un calendrier avec ce nom existe déjà!";
+                }
+            }
             try {
                 iCal calendar = new iCal(args[1], args[2]);
                 calendar.buildEventData();
