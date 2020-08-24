@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
-import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class Main extends ListenerAdapter {
     public static final String prefix = "!edt";
@@ -36,12 +36,12 @@ public class Main extends ListenerAdapter {
 
         authorized.add(146323264409567232L);
 
-        System.out.println("[DEBUG] Started.");
+        System.out.println("[DEBUG] " + getCurrentTime() + " Started.");
         JDABuilder builder = new JDABuilder(AccountType.BOT);
         builder.setToken(args[0]);
         builder.addEventListener(new Main());
         Main.jda = builder.buildAsync();
-        System.out.println("[DEBUG] Connected.");
+        System.out.println("[DEBUG] " + getCurrentTime() + " Connected.");
         Main.jda.getPresence().setPresence(Game.playing("lire des calendriers"), false);
 
         // Initialize saved iCals from serialized list
@@ -64,7 +64,7 @@ public class Main extends ListenerAdapter {
                 && !event.getChannelType().isGuild()
                 && event.getMessage().getContentRaw().startsWith("!admin")){
             if(event.getMessage().getContentRaw().equals("!admin shutdown")){
-                System.out.println("[DEBUG] Shutting down. Requested by " +
+                System.out.println("[DEBUG] " + getCurrentTime() + " Shutting down. Requested by " +
                         event.getAuthor().getName() +
                         " on " +
                         LocalDate.now() +
@@ -127,24 +127,24 @@ public class Main extends ListenerAdapter {
 
     @SuppressWarnings("unchecked")
     public static ArrayList<iCal> loadSerializedItemList(){
-        System.out.println("[DEBUG] Attempting to load item list object...");
+        System.out.println("[DEBUG] " + getCurrentTime() + " Attempting to load item list object...");
         FileInputStream file;
         try{
             file = new FileInputStream("calendars.ser");
             ObjectInputStream stream = new ObjectInputStream(file);
             ArrayList<iCal> object = (ArrayList<iCal>) stream.readObject();
             stream.close();
-            System.out.println("[DEBUG] Success.");
+            System.out.println("[DEBUG] " + getCurrentTime() + " Success.");
             return object;
         } catch (ClassNotFoundException | IOException e) {
             // itemList is not present, corrupted, or failed to load for some reason. Return an empty list, warn the administrator
-            System.out.println("[WARNING] Item list object \"calendars.ser\" failed to load. Defaulting to an empty list.");
+            System.out.println("[WARNING] " + getCurrentTime() + " Item list object \"calendars.ser\" failed to load. Defaulting to an empty list.");
             return new ArrayList<>();
         }
     }
 
     public static void saveSerializedItemList(){
-        System.out.println("[DEBUG] Attempting to save item list object...");
+        System.out.println("[DEBUG] " + getCurrentTime() + " Attempting to save item list object...");
         FileOutputStream file;
         try{
             file = new FileOutputStream("calendars.ser");
@@ -152,28 +152,32 @@ public class Main extends ListenerAdapter {
             stream.writeObject(iCals);
             stream.flush();
             stream.close();
-            System.out.println("[DEBUG] Success.");
+            System.out.println("[DEBUG] " + getCurrentTime() + " Success.");
         } catch (IOException e) {
             // file is locked by another process, or file is non existent even though it was previously opened
-            System.out.println("[WARNING] Item list object \"calendars.ser\" failed to save. File might be used by something else.");
+            System.out.println("[WARNING] " + getCurrentTime() + " Item list object \"calendars.ser\" failed to save. File might be used by something else.");
         }
     }
 
     // Attempts to update each calendar, downloading the latest version from the url.
     public static void update() {
-        System.out.println("[DEBUG] (" + LocalDate.now() + " " + LocalTime.now() + ") Starting calendar updates.");
+        System.out.println("[DEBUG] " + getCurrentTime() + " Starting calendar updates.");
         LocalTime startTime = LocalTime.now();
         int failcount = 0;
         for(iCal c : iCals){
             boolean success = c.update();
             if(!success){
                 failcount++;
-                System.out.println("[WARNING] Calendar " + c.identifier + " failed to update");
+                System.out.println("[WARNING] " + getCurrentTime() + "Calendar " + c.identifier + " failed to update");
             }
         }
-        System.out.println("[DEBUG] (" + LocalDate.now() + " " + LocalTime.now() + ") Finished updating calendars.\n" +
+        System.out.println("[DEBUG] " + getCurrentTime() + " Finished updating calendars.\n" +
                 "Calendars parsed : " + Main.iCals.size() + "\n" +
                 "Calendar updates failed : " + failcount + "\n" +
-                "Update took : " + startTime.until(LocalTime.now(), MINUTES));
+                "Update took : " + startTime.until(LocalTime.now(), SECONDS) + "s");
+    }
+
+    public static String getCurrentTime(){
+        return "(" + LocalDate.now() + " " + LocalTime.now() + ")";
     }
 }
