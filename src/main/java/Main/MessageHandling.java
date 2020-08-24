@@ -28,7 +28,7 @@ public class MessageHandling {
         // if a valid iCal was specified in the message, override the user's group found in their roles (if one was found)
         if(argsList.length >= 2){
             for(iCal c : Main.iCals){
-                if(c.identifier.equals(argsList[2])){
+                if(c.identifier.equals(argsList[1])){
                     userCalendar = c;
                     groupFoundInMessage = true;
                 }
@@ -80,7 +80,7 @@ public class MessageHandling {
                     return userCalendar.getAllEventsOf(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
             }
         }
-        return null;
+        return userCalendar.getAllEventsOf(LocalDate.now());
     }
 
     // Gets each argument (an argument is separated by argSeparator, here a space)
@@ -115,6 +115,7 @@ public class MessageHandling {
         } else {
             try {
                 iCal calendar = new iCal(args[1], args[2]);
+                calendar.buildEventData();
                 Main.iCals.add(calendar);
                 return "Calendrier " + calendar.identifier + " ajouté avec succès!";
             } catch (IOException e) {
@@ -132,6 +133,21 @@ public class MessageHandling {
                 if(c.identifier.equals(args[1])){
                     Main.iCals.remove(c);
                     return "Calendrier " + c.identifier + " supprimé.";
+                }
+            }
+            return "Erreur : aucun calendrier n'a été trouvé avec l'identifiant " + args[1] + ".";
+        }
+    }
+
+    public static String updateCalendar(MessageReceivedEvent event) {
+        String[] args = getArgumentList(event.getMessage().getContentRaw());
+        if(args.length != 2){
+            return "Erreur : merci de spécifier quel calendrier supprimer";
+        } else {
+            for(iCal c : Main.iCals){
+                if(c.identifier.equals(args[1])){
+                    c.update();
+                    return "Calendrier mis a jour";
                 }
             }
             return "Erreur : aucun calendrier n'a été trouvé avec l'identifiant " + args[1] + ".";
