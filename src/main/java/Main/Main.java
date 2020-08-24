@@ -86,10 +86,11 @@ public class Main extends ListenerAdapter {
                 return;
             }
             if(event.getMessage().getContentRaw().equals("!admin list calendars")){
-                System.out.println(iCals.size());
+                StringBuilder sb = new StringBuilder();
                 for(iCal i : iCals){
-                    i.debugPrintCalendarStats();
+                    sb.append(i.debugPrintCalendarStats());
                 }
+                event.getChannel().sendMessage(sb.toString()).queue();
             }
         }
 
