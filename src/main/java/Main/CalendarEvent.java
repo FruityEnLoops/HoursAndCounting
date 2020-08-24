@@ -28,11 +28,10 @@ public class CalendarEvent implements Serializable {
     }
 
     public String toString(){
-        return category +
-                "\nDe " + start +
-                " a " + end +
-                "\n" + summary +
-                "\nDans : " + location;
+        return "\nDe " + start.toLocalTime() + "h" +
+               " a " + end.toLocalTime() + "h" +
+               "\n" + summary +
+               "\nDans : " + location;
     }
 
     public void setCategory(String category) {
