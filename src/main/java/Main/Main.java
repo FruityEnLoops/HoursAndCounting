@@ -26,7 +26,7 @@ public class Main extends ListenerAdapter {
     public static Timer saveThread = new Timer(true);
     public static final long saveDelay = 300000L; // 5 minutes
     public static Timer updateThread = new Timer(true);
-    public static final long updateFrequency = 3600000L; // an hour
+    public static final long updateFrequency = 3600000L ; // an hour
 
     public static void main(String[] args) throws LoginException {
         if(args.length != 1){
@@ -73,26 +73,39 @@ public class Main extends ListenerAdapter {
                 Main.saveSerializedItemList();
                 System.exit(0);
             }
-            if(event.getMessage().getContentRaw().contains("!admin add")){
+            if(event.getMessage().getContentRaw().startsWith("!admin add")){
                 MessageHandling.addAuthorized(event);
                 return;
             }
-            if(event.getMessage().getContentRaw().contains("!admin remove")){
+            if(event.getMessage().getContentRaw().startsWith("!admin remove")){
                 MessageHandling.removeAuthorized(event);
                 return;
             }
-            if(event.getMessage().getContentRaw().contains("!admin list")){
+            if(event.getMessage().getContentRaw().equals("!admin list")){
                 MessageHandling.sendAdminList(event);
                 return;
+            }
+            if(event.getMessage().getContentRaw().equals("!admin list calendars")){
+                System.out.println(iCals.size());
+                for(iCal i : iCals){
+                    i.debugPrintCalendarStats();
+                }
             }
         }
 
         if(event.getMessage().getContentRaw().startsWith("!edtadd") && checkUserPerm(event, "iCal Editor")){
             event.getChannel().sendMessage(MessageHandling.addCalendar(event)).queue();
+            return;
         }
 
         if(event.getMessage().getContentRaw().startsWith("!edtrm") && checkUserPerm(event, "iCal Editor")){
             event.getChannel().sendMessage(MessageHandling.removeCalendar(event)).queue();
+            return;
+        }
+
+        if(event.getMessage().getContentRaw().startsWith("!edtup") && checkUserPerm(event, "iCal Editor")){
+            event.getChannel().sendMessage(MessageHandling.updateCalendar(event)).queue();
+            return;
         }
 
         if(event.getMessage().getContentRaw().startsWith(Main.prefix)){
