@@ -114,7 +114,7 @@ public class MessageHandling {
             return "Erreur : merci de donner l'URL et le nom du calendrier";
         } else {
             for(iCal i : Main.iCals){
-                if(i.identifier.equals(args[1])){
+                if(i.identifier.equals(args[2])){
                     return "Erreur : un calendrier avec ce nom existe déjà!";
                 }
             }
