@@ -49,9 +49,9 @@ public class iCal implements Serializable {
         return res.toString();
     }
 
-    public void debugPrintCalendarStats(){
-        System.out.println("Calendar identifier : " + identifier);
-        System.out.println("Calendar url : " + url);
-        System.out.println("Calendar event count : " + this.events.size());
+    public String debugPrintCalendarStats(){
+        return "Calendar identifier : " + identifier +
+                "\nCalendar url : " + url +
+                "\nCalendar event count : " + this.events.size();
     }
 }
