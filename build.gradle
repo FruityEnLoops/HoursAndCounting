@@ -4,7 +4,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '4.0.3'
 }
 
-mainClassName = "Main"
+mainClassName = "Main.Main"
 
 group 'com.blob'
 version '1.0-SNAPSHOT'
