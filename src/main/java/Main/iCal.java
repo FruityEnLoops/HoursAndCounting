@@ -1,9 +1,15 @@
 package Main;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+
+import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+
+import static Main.MessageHandling.USE_INLINE;
 
 public class iCal implements Serializable {
     public String url;
@@ -36,17 +42,23 @@ public class iCal implements Serializable {
     }
 
     // Returns all events of the specified date
-    public String getAllEventsOf(LocalDate date) {
-        StringBuilder res = new StringBuilder();
+    public MessageEmbed getAllEventsOf(LocalDate date) {
+        boolean found = false;
+        EmbedBuilder eb = new EmbedBuilder();
         for (CalendarEvent e : this.events) {
             if (e.start.toLocalDate().isEqual(date)) {
-                res.append(e);
+                eb.addField(e.summary, e.location, USE_INLINE);
+                found = true;
             }
         }
-        if(res.toString().isEmpty()){
-            return "Aucun évenement.";
+        if(!found){
+            eb.addField("Erreur", "Aucun évenement.", USE_INLINE);
+            eb.setColor(Color.RED);
+            return eb.build();
         }
-        return res.toString();
+        eb.setColor(Color.green);
+        eb.setTitle(date.toString());
+        return eb.build();
     }
 
     public String debugPrintCalendarStats(){
