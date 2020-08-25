@@ -1,6 +1,7 @@
 package Main;
 
 import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Game;
@@ -9,14 +10,15 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import javax.security.auth.login.LoginException;
+import java.awt.*;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
+import static Main.MessageHandling.USE_INLINE;
+import static java.time.temporal.ChronoUnit.MILLIS;
 
 public class Main extends ListenerAdapter {
     public static final String prefix = "!edt";
@@ -26,7 +28,7 @@ public class Main extends ListenerAdapter {
     public static Timer saveThread = new Timer(true);
     public static final long saveDelay = 300000L; // 5 minutes
     public static Timer updateThread = new Timer(true);
-    public static final long updateFrequency = 3600000L ; // an hour
+    public static final long updateFrequency = 60000L ; // an hour 3600000L
 
     public static void main(String[] args) throws LoginException {
         if(args.length != 1){
@@ -36,12 +38,12 @@ public class Main extends ListenerAdapter {
 
         authorized.add(146323264409567232L);
 
-        System.out.println("[DEBUG] " + getCurrentTime() + " Started.");
+        System.out.println("[INFO] " + getCurrentTime() + " Started.");
         JDABuilder builder = new JDABuilder(AccountType.BOT);
         builder.setToken(args[0]);
         builder.addEventListener(new Main());
         Main.jda = builder.buildAsync();
-        System.out.println("[DEBUG] " + getCurrentTime() + " Connected.");
+        System.out.println("[INFO] " + getCurrentTime() + " Connected.");
         Main.jda.getPresence().setPresence(Game.playing("lire des calendriers"), false);
 
         // Initialize saved iCals from serialized list
@@ -74,37 +76,64 @@ public class Main extends ListenerAdapter {
                 System.exit(0);
             }
             if(event.getMessage().getContentRaw().startsWith("!admin add")){
-                MessageHandling.addAuthorized(event);
+                event.getChannel().sendMessage(MessageHandling.addAuthorized(event)).queue();
                 return;
             }
             if(event.getMessage().getContentRaw().startsWith("!admin remove")){
-                MessageHandling.removeAuthorized(event);
+                event.getChannel().sendMessage(MessageHandling.removeAuthorized(event)).queue();
                 return;
             }
             if(event.getMessage().getContentRaw().equals("!admin list")){
-                MessageHandling.sendAdminList(event);
+                event.getChannel().sendMessage(MessageHandling.sendAdminList()).queue();
                 return;
             }
-            if(event.getMessage().getContentRaw().equals("!admin list calendars")){
-                StringBuilder sb = new StringBuilder();
-                for(iCal i : iCals){
-                    sb.append(i.debugPrintCalendarStats());
-                }
-                event.getChannel().sendMessage(sb.toString()).queue();
+        }
+
+        if(event.getMessage().getContentRaw().equals("!help")){
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle("HoursAndCounting", "https://github.com/FruityEnLoops/HoursAndCounting");
+            eb.setDescription("Commandes");
+            eb.addField("!edt","Affiche votre emploi du temps du jour.", USE_INLINE);
+            eb.addField("!edt <jour/demain>", "Affiche votre emploi du temps, un jour précis ou du lendemain.", USE_INLINE);
+            eb.addField("!edt <nom du calendier>", "Affiche l'emploi du temps indiqué du jour.", USE_INLINE);
+            eb.addField("!edt <nom du calendrier> <jour/demain>", "Affiche un jour précis de l'emploi du temps indiqué.", USE_INLINE);
+            eb.setFooter("HoursAndCounting", jda.getSelfUser().getAvatarUrl());
+            eb.setColor(Color.GREEN);
+            event.getChannel().sendMessage(eb.build()).queue();
+        }
+
+        if(event.getMessage().getContentRaw().startsWith("!edtadd")){
+            if (checkUserPerm(event, "iCal Editor")) {
+                event.getChannel().sendMessage(MessageHandling.addCalendar(event)).queue();
+                return;
+            } else {
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.addField("Erreur", "Vous n'avez pas les permissions nécéssaires pour éditer les calendriers.", USE_INLINE);
+                eb.setColor(Color.RED);
+                event.getChannel().sendMessage(eb.build()).queue();
+                return;
             }
         }
 
-        if(event.getMessage().getContentRaw().startsWith("!edtadd") && checkUserPerm(event, "iCal Editor")){
-            event.getChannel().sendMessage(MessageHandling.addCalendar(event)).queue();
+        if(event.getMessage().getContentRaw().startsWith("!edtrm")){
+            if (checkUserPerm(event, "iCal Editor")) {
+                event.getChannel().sendMessage(MessageHandling.removeCalendar(event)).queue();
+                return;
+            } else {
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.addField("Erreur", "Vous n'avez pas les permissions nécéssaires pour éditer les calendriers.", USE_INLINE);
+                eb.setColor(Color.RED);
+                event.getChannel().sendMessage(eb.build()).queue();
+                return;
+            }
+        }
+
+        if(event.getMessage().getContentRaw().startsWith("!edtlist")){
+            event.getChannel().sendMessage(MessageHandling.listCalendar()).queue();
             return;
         }
 
-        if(event.getMessage().getContentRaw().startsWith("!edtrm") && checkUserPerm(event, "iCal Editor")){
-            event.getChannel().sendMessage(MessageHandling.removeCalendar(event)).queue();
-            return;
-        }
-
-        if(event.getMessage().getContentRaw().startsWith("!edtup") && checkUserPerm(event, "iCal Editor")){
+        if(event.getMessage().getContentRaw().startsWith("!edtup")){
             event.getChannel().sendMessage(MessageHandling.updateCalendar(event)).queue();
             return;
         }
@@ -116,8 +145,7 @@ public class Main extends ListenerAdapter {
 
     // Verifies if user has a role with the String name
     private boolean checkUserPerm(MessageReceivedEvent event, String name) {
-        List<Role> authorRoles = event.getAuthor().getJDA().getRoles();
-        for(Role r : authorRoles){
+        for(Role r : event.getGuild().getMember(event.getAuthor()).getRoles()){
             if(r.getName().equals(name)){
                 return true;
             }
@@ -134,7 +162,7 @@ public class Main extends ListenerAdapter {
             ObjectInputStream stream = new ObjectInputStream(file);
             ArrayList<iCal> object = (ArrayList<iCal>) stream.readObject();
             stream.close();
-            System.out.println("[DEBUG] " + getCurrentTime() + " Success.");
+            System.out.println("[INFO] " + getCurrentTime() + " Success.");
             return object;
         } catch (ClassNotFoundException | IOException e) {
             // itemList is not present, corrupted, or failed to load for some reason. Return an empty list, warn the administrator
@@ -152,7 +180,7 @@ public class Main extends ListenerAdapter {
             stream.writeObject(iCals);
             stream.flush();
             stream.close();
-            System.out.println("[DEBUG] " + getCurrentTime() + " Success.");
+            System.out.println("[INFO] " + getCurrentTime() + " Success.");
         } catch (IOException e) {
             // file is locked by another process, or file is non existent even though it was previously opened
             System.out.println("[WARNING] " + getCurrentTime() + " Item list object \"calendars.ser\" failed to save. File might be used by something else.");
@@ -171,10 +199,10 @@ public class Main extends ListenerAdapter {
                 System.out.println("[WARNING] " + getCurrentTime() + "Calendar " + c.identifier + " failed to update");
             }
         }
-        System.out.println("[DEBUG] " + getCurrentTime() + " Finished updating calendars.\n" +
-                "Calendars parsed : " + Main.iCals.size() + "\n" +
-                "Calendar updates failed : " + failcount + "\n" +
-                "Update took : " + startTime.until(LocalTime.now(), SECONDS) + "s");
+        System.out.println("[INFO] " + getCurrentTime() + " Finished updating calendars.\n" +
+                "[INFO] Calendars parsed : " + Main.iCals.size() + "\n" +
+                "[INFO] Calendar updates failed : " + failcount + "\n" +
+                "[INFO] Update took : " + startTime.until(LocalTime.now(), MILLIS) + "ms");
     }
 
     public static String getCurrentTime(){
