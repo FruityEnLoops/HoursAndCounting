@@ -28,7 +28,7 @@ public class Main extends ListenerAdapter {
     public static Timer saveThread = new Timer(true);
     public static final long saveDelay = 300000L; // 5 minutes
     public static Timer updateThread = new Timer(true);
-    public static final long updateFrequency = 60000L ; // an hour 3600000L
+    public static final long updateFrequency = 3600000L ; // an hour
 
     public static void main(String[] args) throws LoginException {
         if(args.length != 1){
