@@ -47,7 +47,8 @@ public class iCal implements Serializable {
         EmbedBuilder eb = new EmbedBuilder();
         for (CalendarEvent e : this.events) {
             if (e.start.toLocalDate().isEqual(date)) {
-                eb.addField(e.summary, e.location, USE_INLINE);
+                eb.addField(e.summary, e.location + "\n" +
+                        e.start.toLocalTime().toString() + " à " + e.end.toLocalTime().toString(), USE_INLINE);
                 found = true;
             }
         }
@@ -59,11 +60,5 @@ public class iCal implements Serializable {
         eb.setColor(Color.green);
         eb.setTitle(date.toString());
         return eb.build();
-    }
-
-    public String debugPrintCalendarStats(){
-        return "Calendar identifier : " + identifier +
-                "\nCalendar url : " + url +
-                "\nCalendar event count : " + this.events.size();
     }
 }
