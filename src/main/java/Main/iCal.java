@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static Main.MessageHandling.USE_INLINE;
 
@@ -45,10 +46,10 @@ public class iCal implements Serializable {
     public MessageEmbed getAllEventsOf(LocalDate date) {
         boolean found = false;
         EmbedBuilder eb = new EmbedBuilder();
+        ArrayList<CalendarEvent> todaysEvents = new ArrayList<CalendarEvent>();
         for (CalendarEvent e : this.events) {
             if (e.start.toLocalDate().isEqual(date)) {
-                eb.addField(e.summary, e.location + "\n" +
-                        e.start.toLocalTime().toString() + " à " + e.end.toLocalTime().toString(), USE_INLINE);
+                todaysEvents.add(e);
                 found = true;
             }
         }
@@ -56,6 +57,11 @@ public class iCal implements Serializable {
             eb.addField("Erreur", "Aucun évenement.", USE_INLINE);
             eb.setColor(Color.RED);
             return eb.build();
+        }
+        Collections.sort(todaysEvents, new CalendarEventComparator());
+        for(CalendarEvent e : todaysEvents){
+            eb.addField(e.summary, e.location + "\n" +
+                    e.start.toLocalTime().toString() + " à " + e.end.toLocalTime().toString(), USE_INLINE);
         }
         eb.setColor(Color.green);
         eb.setTitle(date.toString());
