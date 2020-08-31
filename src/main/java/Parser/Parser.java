@@ -15,13 +15,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Parser {
-    private static final String SUMMARY = "SUMMARY:";
-    private static final String UID = "UID:";
-    private static final String DTSTART = "DTSTART:";
-    private static final String DTEND = "DTEND:";
-    private static final String LOCATION = "LOCATION:";
-    private static final String DESCRIPTION = "DESCRIPTION:";
-    private static final String CATEGORY = "CATEGORY:";
+    private static final String SUMMARY = "SUMMARY";
+    private static final String UID = "UID";
+    private static final String DTSTART = "DTSTART";
+    private static final String DTEND = "DTEND";
+    private static final String LOCATION = "LOCATION";
+    private static final String DESCRIPTION = "DESCRIPTION";
+    private static final String CATEGORY = "CATEGORY";
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
 
@@ -49,9 +49,9 @@ public class Parser {
                 String line = sc.nextLine();
                 // Detect what that line is about, to add it to the right field in our event object
                 if(line.startsWith(SUMMARY)){
-                    event.setSummary(line.substring(SUMMARY.length()));
+                    event.setSummary(line.substring(line.indexOf(":") + 1));
                 } else if(line.startsWith(UID)){
-                    event.setUid(line.substring(UID.length()));
+                    event.setUid(line.substring(line.indexOf(":") + 1));
                 } else if(line.startsWith(DTSTART)){
                     String date = line.substring(line.indexOf(":") + 1);
                     event.setStart(parseDate(date));
@@ -59,11 +59,11 @@ public class Parser {
                     String date = line.substring(line.indexOf(":") + 1);
                     event.setEnd(parseDate(date));
                 } else if(line.startsWith(LOCATION)){
-                    event.setLocation(line.substring(LOCATION.length()));
+                    event.setLocation(line.substring(line.indexOf(":") + 1));
                 } else if(line.startsWith(DESCRIPTION)){
-                    event.setDescription(line.substring(DESCRIPTION.length()));
+                    event.setDescription(line.substring(line.indexOf(":") + 1));
                 } else if(line.startsWith(CATEGORY)){
-                    event.setCategory(line.substring(CATEGORY.length()));
+                    event.setCategory(line.substring(line.indexOf(":") + 1));
                 }
             }
             // don't forget to close the scanner after we're done with this object!
