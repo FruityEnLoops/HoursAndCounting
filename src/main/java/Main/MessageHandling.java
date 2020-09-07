@@ -25,7 +25,7 @@ public class MessageHandling {
         boolean groupFoundInMessage = false;
         for(Role e : userRoles){
             for(iCal c : Main.iCals){
-                if(e.getName().equals(c.identifier)){
+                if(e.getName().toLowerCase().equals(c.identifier.toLowerCase())){
                     userCalendar = c;
                 }
             }
@@ -33,7 +33,7 @@ public class MessageHandling {
         // if a valid iCal was specified in the message, override the user's group found in their roles (if one was found)
         if(argsList.length >= 2){
             for(iCal c : Main.iCals){
-                if(c.identifier.equals(argsList[1])){
+                if(c.identifier.toLowerCase().equals(argsList[1].toLowerCase())){
                     userCalendar = c;
                     groupFoundInMessage = true;
                 }
@@ -57,7 +57,7 @@ public class MessageHandling {
     }
 
     private static MessageEmbed pickDate(String s, iCal userCalendar) {
-        switch(s){
+        switch(s.toLowerCase()){
             case "demain":
                 return userCalendar.getAllEventsOf(LocalDate.now().plusDays(1));
             case "lundi":
@@ -206,7 +206,23 @@ public class MessageHandling {
         }
         eb.setTitle("Calendriers");
         for(iCal i : Main.iCals){
-            eb.addField("Calendrier " + i.identifier, i.url, USE_INLINE);
+            eb.addField("Calendrier " + i.identifier, "Nombre d'évènements : " + i.events.size(), USE_INLINE);
+        }
+        eb.setColor(Color.GREEN);
+        return eb.build();
+    }
+
+    public static MessageEmbed rightNow() {
+        EmbedBuilder eb = new EmbedBuilder();
+        for(iCal i : Main.iCals){
+            CalendarEvent currentEvent = i.getCurrentEvent();
+            if(currentEvent != null){
+                eb.addField(i.identifier, currentEvent.summary + "\n"
+                        + currentEvent.location + "\n" +
+                        currentEvent.start.toLocalTime().toString() + " à " + currentEvent.end.toLocalTime().toString(), USE_INLINE);
+            } else {
+                eb.addField(i.identifier, "Rien", USE_INLINE);
+            }
         }
         eb.setColor(Color.GREEN);
         return eb.build();
