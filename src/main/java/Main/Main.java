@@ -89,7 +89,7 @@ public class Main extends ListenerAdapter {
             }
         }
 
-        if(event.getMessage().getContentRaw().equals("!help")){
+        if(event.getMessage().getContentRaw().equals("!aide")){
             EmbedBuilder eb = new EmbedBuilder();
             eb.setTitle("HoursAndCounting", "https://github.com/FruityEnLoops/HoursAndCounting");
             eb.setDescription("Commandes");
@@ -135,6 +135,11 @@ public class Main extends ListenerAdapter {
 
         if(event.getMessage().getContentRaw().startsWith("!edtup")){
             event.getChannel().sendMessage(MessageHandling.updateCalendar(event)).queue();
+            return;
+        }
+
+        if(event.getMessage().getContentRaw().startsWith("!rightnow")){
+            event.getChannel().sendMessage(MessageHandling.rightNow()).queue();
             return;
         }
 
