@@ -7,6 +7,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -64,7 +65,16 @@ public class iCal implements Serializable {
                     e.start.toLocalTime().toString() + " à " + e.end.toLocalTime().toString(), USE_INLINE);
         }
         eb.setColor(Color.green);
-        eb.setTitle(date.toString());
+        eb.setTitle(date.toString() + " (" + this.identifier + ")");
         return eb.build();
+    }
+
+    public CalendarEvent getCurrentEvent() {
+        for(CalendarEvent e : this.events){
+            if(e.start.isBefore(LocalDateTime.now()) && e.end.isAfter(LocalDateTime.now())){
+                return e;
+            }
+        }
+        return null;
     }
 }
