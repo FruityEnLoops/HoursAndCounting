@@ -9,6 +9,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
@@ -42,6 +43,7 @@ public class MessageHandling {
         if(userCalendar == null){
             eb.addField("Erreur", "Calendrier non spécifié / vous n'avez le rôle d'aucun calendrier.", USE_INLINE);
             eb.setColor(Color.RED);
+            eb.setTitle("Erreur");
             return eb.build();
         }
         // message is "!edt". Return all the events for the current day :
@@ -53,7 +55,10 @@ public class MessageHandling {
         } if(argsList.length == 3 && groupFoundInMessage){
             return pickDate(argsList[2], userCalendar);
         }
-        return userCalendar.getAllEventsOf(LocalDate.now());
+        eb.addField("Erreur", "Syntaxe de la commande incorrecte", USE_INLINE);
+        eb.setColor(Color.RED);
+        eb.setTitle("Erreur");
+        return eb.build();
     }
 
     private static MessageEmbed pickDate(String s, iCal userCalendar) {
@@ -96,6 +101,7 @@ public class MessageHandling {
         }
         eb.addField("Error", "Arguments missing", USE_INLINE);
         eb.setColor(Color.RED);
+        eb.setTitle("Erreur");
         return eb.build();
     }
 
@@ -129,12 +135,14 @@ public class MessageHandling {
         if(args.length != 3){
             eb.addField("Erreur", "Merci de donner l'URL et le nom du calendrier", USE_INLINE);
             eb.setColor(Color.RED);
+            eb.setTitle("Erreur");
             return eb.build();
         } else {
             for(iCal i : Main.iCals){
                 if(i.identifier.equals(args[2])){
                     eb.addField("Erreur", "Un calendrier avec ce nom existe déjà!", USE_INLINE);
                     eb.setColor(Color.RED);
+                    eb.setTitle("Erreur");
                     return eb.build();
                 }
             }
@@ -144,10 +152,12 @@ public class MessageHandling {
                 Main.iCals.add(calendar);
                 eb.addField("Succès", "Calendrier " + calendar.identifier + " ajouté avec succès!", USE_INLINE);
                 eb.setColor(Color.GREEN);
+                eb.setTitle("Succès");
                 return eb.build();
             } catch (IOException e) {
                 eb.addField("Erreur", "URL de l'iCal invalide!", USE_INLINE);
                 eb.setColor(Color.RED);
+                eb.setTitle("Erreur");
                 return eb.build();
             }
         }
@@ -159,6 +169,7 @@ public class MessageHandling {
         if(args.length != 2){
             eb.addField("Erreur", "Merci de spécifier quel calendrier supprimer.", USE_INLINE);
             eb.setColor(Color.RED);
+            eb.setTitle("Erreur");
             return eb.build();
         } else {
             for(iCal c : Main.iCals){
@@ -166,11 +177,13 @@ public class MessageHandling {
                     Main.iCals.remove(c);
                     eb.addField("Succès", "Calendrier " + c.identifier + " supprimé.", USE_INLINE);
                     eb.setColor(Color.GREEN);
+                    eb.setTitle("Succès");
                     return eb.build();
                 }
             }
             eb.addField("Erreur", "Aucun calendrier n'a été trouvé avec l'identifiant " + args[1] + ".", USE_INLINE);
             eb.setColor(Color.RED);
+            eb.setTitle("Erreur");
             return eb.build();
         }
     }
@@ -181,6 +194,7 @@ public class MessageHandling {
         if(args.length != 2){
             eb.addField("Erreur", "Merci de spécifier quel calendrier mettre à jour.", USE_INLINE);
             eb.setColor(Color.RED);
+            eb.setTitle("Erreur");
             return eb.build();
         } else {
             for(iCal c : Main.iCals){
@@ -193,6 +207,7 @@ public class MessageHandling {
             }
             eb.addField("Erreur","Aucun calendrier n'a été trouvé avec l'identifiant " + args[1] + ".", USE_INLINE);
             eb.setColor(Color.RED);
+            eb.setTitle("Erreur");
             return eb.build();
         }
     }
@@ -201,6 +216,7 @@ public class MessageHandling {
         EmbedBuilder eb = new EmbedBuilder();
         if(Main.iCals.isEmpty()){
             eb.addField("Erreur", "Il n'y a aucun calendriers actuellement!", USE_INLINE);
+            eb.setTitle("Erreur");
             eb.setColor(Color.RED);
             return eb.build();
         }
@@ -209,6 +225,7 @@ public class MessageHandling {
             eb.addField("Calendrier " + i.identifier, "Nombre d'évènements : " + i.events.size(), USE_INLINE);
         }
         eb.setColor(Color.GREEN);
+        eb.setTitle("Liste des calendriers");
         return eb.build();
     }
 
@@ -224,6 +241,7 @@ public class MessageHandling {
                 eb.addField(i.identifier, "Rien", USE_INLINE);
             }
         }
+        eb.setTitle("Cours actuels - " + LocalDate.now() + " " + LocalTime.now().getHour() + "h" + LocalTime.now().getMinute());
         eb.setColor(Color.GREEN);
         return eb.build();
     }
