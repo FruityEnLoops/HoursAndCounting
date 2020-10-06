@@ -102,6 +102,33 @@ public class Main extends ListenerAdapter {
             event.getChannel().sendMessage(eb.build()).queue();
         }
 
+        if(event.getMessage().getContentRaw().equals("!status")){
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle("Current host status");
+            try {
+                ArrayList<String> top = getProcessOutput(Runtime.getRuntime().exec("top -b -n 1"));
+                StringBuilder sb = new StringBuilder();
+                for(int i = 1; i < 5; i++){
+                    sb.append(top.get(i)).append("\n");
+                }
+                eb.addField("top", sb.toString(), USE_INLINE);
+            } catch (IOException e) {
+                eb.addField("top", "Failed to execute 'top'", USE_INLINE);
+            }
+            try {
+                ArrayList<String> vnstat = getProcessOutput(Runtime.getRuntime().exec("vnstat -d 1"));
+                StringBuilder sb = new StringBuilder();
+                for(int i = 1; i < 7; i++){
+                    sb.append(vnstat.get(i)).append("\n");
+                }
+                eb.addField("vnstat", sb.toString(), USE_INLINE);
+            } catch (IOException e) {
+                eb.addField("vnstat", "Failed to execute 'vnstat'", USE_INLINE);
+            }
+            eb.setColor(Color.GREEN);
+            event.getChannel().sendMessage(eb.build()).queue();
+        }
+
         if(event.getMessage().getContentRaw().startsWith("!edtadd")){
             if (checkUserPerm(event, "iCal Editor")) {
                 event.getChannel().sendMessage(MessageHandling.addCalendar(event)).queue();
@@ -146,6 +173,16 @@ public class Main extends ListenerAdapter {
         if(event.getMessage().getContentRaw().startsWith(Main.prefix)){
             event.getChannel().sendMessage(MessageHandling.commandHandler(event)).queue();
         }
+    }
+
+    public static ArrayList<String> getProcessOutput(Process process) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        ArrayList<String> s = new ArrayList<String>();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            s.add(line);
+        }
+        return s;
     }
 
     // Verifies if user has a role with the String name
