@@ -12,7 +12,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
+import java.util.TimeZone;
 
 public class Parser {
     private static final String SUMMARY = "SUMMARY";
@@ -24,6 +26,9 @@ public class Parser {
     private static final String CATEGORY = "CATEGORY";
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+
+    // CHANGE THIS BASED ON WHAT TIMEZONE YOUR CALENDARS ARE ON
+    private static final TimeZone tz = TimeZone.getTimeZone("Europe/Paris");
 
 
     // opens the stream, and returns the whole file.
@@ -79,7 +84,7 @@ public class Parser {
         LocalDate date = LocalDate.parse(sc.next(), formatter);
         LocalTime time;
         if(sc.hasNext()){
-            time = LocalTime.parse(sc.next(), DateTimeFormatter.ofPattern("HHmmss")).plusHours(2);
+            time = LocalTime.parse(sc.next(), DateTimeFormatter.ofPattern("HHmmss")).plusSeconds(tz.getOffset(new Date().getTime()) / 1000);
         } else {
             time = LocalTime.of(0, 0);
         }
