@@ -7,7 +7,7 @@ plugins {
 mainClassName = "Main.Main"
 
 group 'com.blob'
-version '1.2'
+version '2.0'
 compileJava.options.encoding = 'UTF-8'
 
 sourceCompatibility = 1.8
@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:3.5.0_329'
+    implementation 'net.dv8tion:JDA:4.2.0_214'
     implementation 'org.slf4j:slf4j-api:1.7.25'
     implementation 'org.slf4j:slf4j-nop:1.7.25'
 }

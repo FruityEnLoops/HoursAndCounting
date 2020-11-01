@@ -1,13 +1,12 @@
 package Main;
 
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.security.auth.login.LoginException;
 import java.awt.*;
@@ -39,12 +38,11 @@ public class Main extends ListenerAdapter {
         authorized.add(146323264409567232L);
 
         System.out.println("[INFO] " + getCurrentTime() + " Started.");
-        JDABuilder builder = new JDABuilder(AccountType.BOT);
-        builder.setToken(args[0]);
-        builder.addEventListener(new Main());
-        Main.jda = builder.buildAsync();
+        JDABuilder builder = JDABuilder.createDefault(args[0]);
+        builder.addEventListeners(new Main());
+        Main.jda = builder.build();
         System.out.println("[INFO] " + getCurrentTime() + " Connected.");
-        Main.jda.getPresence().setPresence(Game.playing("lire des calendriers"), false);
+        Main.jda.getPresence().setActivity(Activity.watching("des calendriers"));
 
         // Initialize saved iCals from serialized list
         iCals = loadSerializedItemList();
@@ -80,7 +78,7 @@ public class Main extends ListenerAdapter {
                 return;
             }
             if(event.getMessage().getContentRaw().startsWith("!admin remove")){
-                event.getChannel().sendMessage(MessageHandling.removeAuthorized(event)).queue();
+                event.getChannel().sendMessage(MessageHandling. removeAuthorized(event)).queue();
                 return;
             }
             if(event.getMessage().getContentRaw().equals("!admin list")){

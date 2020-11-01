@@ -1,9 +1,10 @@
 package Main;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MessageHandling {
@@ -21,7 +23,11 @@ public class MessageHandling {
         EmbedBuilder eb = new EmbedBuilder();
         String[] argsList = getArgumentList(event.getMessage().getContentRaw());
         // Try to find the user's iCal group
-        List<Role> userRoles = event.getGuild().getMember(event.getAuthor()).getRoles();
+        Member m = event.getMember();
+        List<Role> userRoles = new ArrayList<Role>();
+        if (m != null) {
+            userRoles = m.getRoles();
+        }
         iCal userCalendar = null;
         boolean groupFoundInMessage = false;
         for(Role e : userRoles){
